@@ -5,11 +5,16 @@ import { firebaseAuth } from "@/utils/FirebaseConfig";
 import axios from "axios";
 import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { useRouter } from "next/router";
-import React from "react";
+import React, { useEffect } from "react";
 import { FcGoogle } from "react-icons/fc";
 function login() {
   const router = useRouter();
-  const [{}, dispatch] = useStateProvider();
+  const [{userInfo,newUser}, dispatch] = useStateProvider();
+  useEffect(()=>{
+    if(userInfo?.id && !newUser){
+      router.push("/")
+    }
+  }, [userInfo, newUser])
   const handleLogin = async () => {
     // alert("login")
     const provider = new GoogleAuthProvider();
@@ -33,6 +38,26 @@ function login() {
             },
           });
           router.push("/onboarding");
+        } else {
+          const {
+            id,
+            name,
+            email,
+            profilePicture: profileImage,
+            status,
+          } = data;
+          dispatch({
+            type: reducerCases.SET_USER_INFO,
+
+            userInfo: {
+              id:data.id,
+              name,
+              email,
+              profileImage,
+              status,
+            },
+          });
+          router.push("/");
         }
       }
     } catch (e) {
@@ -48,8 +73,8 @@ function login() {
           <p className="text-9xl inline">P</p>
           ROD
         </div>
-        <div class="flex ">
-          <div class="inline-block h-[170px] min-h-[1em] w-0.5 self-stretch bg-neutral-100 opacity-50 dark:opacity-10 to-transparent"></div>
+        <div className="flex ">
+          <div className="inline-block h-[170px] min-h-[1em] w-0.5 self-stretch bg-neutral-100 opacity-50 dark:opacity-10 to-transparent"></div>
         </div>
 
         <div className="flex-right w-3/6 font-medium text-4xl text-center">
