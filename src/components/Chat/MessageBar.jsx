@@ -1,9 +1,30 @@
-import React from "react";
-import {BsEmojiSmile} from "react-icons/bs"
+import { useStateProvider } from "@/context/StateContext";
+import { ADD_MESSAGE_ROUTE } from "@/utils/ApiRoutes";
+import axios from "axios";
+import React, { useState } from "react";
+import { BsEmojiSmile } from "react-icons/bs";
 import { FaMicrophone } from "react-icons/fa";
-import {ImAttachment} from "react-icons/im"
+import { ImAttachment } from "react-icons/im";
 import { MdSend } from "react-icons/md";
 function MessageBar() {
+  const [{ userInfo, currentChatUser }, dispatch] = useStateProvider();
+  console.log("hi",{userInfo});
+  const [message, setMessage] = useState("");
+  // send message function.
+  const sendMessage = async () => {
+  // console.log("hi",userInfo.id, {currentChatUser});
+
+    try {
+      const { data } = await axios.post(ADD_MESSAGE_ROUTE, {
+        to: currentChatUser?.id,
+        from: userInfo?.id,
+        message,
+      });
+      setMessage("")
+    } catch (error) {
+      console.log(error);
+    }
+  };
   return (
     <div className="bg-messagebar-background h-20 px-4 flex items-center gap-6 relative rounded-lg border-2 border-sky-500">
       <>
@@ -18,15 +39,22 @@ function MessageBar() {
           />
         </div>
         <div className="w-full rounded-lg h-10 flex items-center">
+          {/* onChange => set message */}
           <input
             type="text"
             placeholder="New Message"
             className="bg-input-background text-sm focus:outline-nonetext-white h-10 rounded-lg px-5 py-4 w-full"
+            onChange={(e) => setMessage(e.target.value)}
+            value={message}
           />
         </div>
         <div className="flex w-10 items-center justify-center">
           <button>
-            <MdSend className="text-panel-header-icon cursor-pointer text-xl" title="send Message"/>
+            <MdSend
+              onClick={sendMessage}
+              className="text-panel-header-icon cursor-pointer text-xl"
+              title="send Message"
+            />
             {/* <FaMicrophone className="text-panel-header-icon cursor-pointer text-xl" title="Record Audio"/> */}
           </button>
         </div>
